@@ -85,6 +85,7 @@ def checkDuplicates(ListofImages):
         hashes[hash] = p
 
 
+
     dst_path = os.path.join(picDir, "DUPL")
     if not os.path.exists(dst_path):
         os.makedirs(dst_path)
@@ -204,3 +205,6 @@ orderImg = PicOrg(imagesDir)
 
 #orderImg.sort_by_year()
 orderImg.chkctmtdeviation()
+
+
+#test
