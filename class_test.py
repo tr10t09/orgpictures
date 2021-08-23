@@ -183,7 +183,7 @@ args = parser.parse_args()
 
 picture = organiser(args.directory)
 
-#picture.mover(args.type)
+picture.mover(args.type)
 picture.duplicator()
 
 
