@@ -4,6 +4,8 @@ import argparse
 import shutil
 import imagehash
 from PIL import Image
+import pandas as pd
+import distance
 
 
 #imgpath = r"/mnt/c/Users/ethoren/Pictures/_temp/"
@@ -174,6 +176,69 @@ class organiser():
 
         #https://blog.tattle.co.in/clustering-similar-images-with-phash/
         pass
+    
+    def df_duplicator(self):
+
+        # https://blog.tattle.co.in/clustering-similar-images-with-phash/
+
+        lstfiles = [f for f in os.listdir(self.ffolderimg) if os.path.isfile(os.path.join(self.ffolderimg, f))]
+        df_hashes = {}
+
+        for img in lstfiles[1:10]:
+
+            picture = os.path.join(self.ffolderimg, img)
+
+            df_hashes[img] = str(imagehash.average_hash(Image.open(picture)))
+
+            #df = pd.DataFrame.from_dict(hashes, orient="index", columns = ["phash"])
+
+        
+        
+        
+        df = pd.DataFrame(list(df_hashes.items()),columns = ['image','hash'])
+        df_hem = pd.DataFrame(list(df_hashes.items()),columns = ['image','hash'])
+
+        #df['path'] = df.apply(lambda path: self.ffolderimg + path.image, axis = 1)
+        df['path'] = self.ffolderimg + '/' + df['image']
+        
+        grouped = df.groupby(by="hash").agg({"image":"size", "path":list})
+        #grouped = df.groupby(by="hash")['image'].count()
+        
+        #pd.set_option('display.max_colwidth', None)
+
+        sorted = grouped.sort_values("image", ascending=False)
+        sorted.reset_index(inplace=True)
+        #print(sorted[sorted["image"] >= 2])
+        identical_clusters = sorted[sorted["image"] >= 2]
+                
+        #print(df['path'].head(10))
+        #print(grouped.head(10))
+        #print(grouped)
+
+        
+        
+        ahash = str(imagehash.average_hash(Image.open("/mnt/c/Users/ethoren/Pictures/_temp/processed_img/20151115_165949.jpg")))
+        #print(distance.hamming(ahash, "ff7d3c3603000000"))
+
+        #print(df_hem['hash'])
+
+        #df['a'] = df['a'].apply(lambda x: x + 1)
+        print(df_hem["hash"][1])
+        print(distance.hamming(ahash, df_hem["hash"][1]))
+
+        print(df_hem.apply(lambda x: distance.hamming(ahash, x["hash"]),axis=1))
+
+        df_hem["distance"] = df_hem.apply(lambda x: distance.hamming(ahash, x["hash"]),axis=1)
+        print(df_hem)
+
+        #df_hem['hamming_distance'] = df_hem.apply(lambda x: distance.hamming(str(x[hash]), ahash), axis=1)
+
+        #print(df_hem.head())
+        #df = df[['image','ahash','hamming_distance']]\
+        #        .sort_values(by='hamming_distance', ascending=True)
+
+        
+
 
 
 parser = argparse.ArgumentParser()
@@ -183,8 +248,9 @@ args = parser.parse_args()
 
 picture = organiser(args.directory)
 
-picture.mover(args.type)
-picture.duplicator()
+#picture.mover(args.type)
+#picture.duplicator()
+picture.df_duplicator()
 
 
 
