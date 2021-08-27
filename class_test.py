@@ -5,7 +5,18 @@ import shutil
 import imagehash
 from PIL import Image
 import pandas as pd
-import distance
+import distance # used for hemming distance calculation
+
+#from skimage.measure import compare_ssim
+
+from skimage.metrics import structural_similarity
+from skimage.metrics import mean_squared_error
+from skimage.transform import resize
+
+from skimage import io
+from skimage import color, img_as_float
+import imutils
+import cv2
 
 
 #imgpath = r"/mnt/c/Users/ethoren/Pictures/_temp/"
@@ -60,9 +71,7 @@ class organiser():
         #    if "processed" not in x[0]:
         #        print(x[0])
 
-           
-
-
+       
     def mover (self, ftype):
         
         #print(self.subdirs[2])
@@ -173,9 +182,31 @@ class organiser():
             
                     
     def similarer(self):
-
         #https://blog.tattle.co.in/clustering-similar-images-with-phash/
-        pass
+
+        #lstfiles = [f for f in os.listdir(self.ffolderimg) if os.path.isfile(os.path.join(self.ffolderimg, f))]
+        lstfiles = [f for f in os.listdir(self.ffolderdup) if os.path.isfile(os.path.join(self.ffolderdup, f))]
+
+        print(lstfiles[1:6])
+
+        
+
+
+        imageA = io.imread(os.path.join(self.ffolderdup, lstfiles[1]))
+        imageB = io.imread(os.path.join(self.ffolderdup, lstfiles[5]))
+        imageA = color.rgb2gray(imageA)
+        imageB = color.rgb2gray(imageB)
+        imageA = resize(imageA, (1000, 1000), anti_aliasing=False)
+        imageB = resize(imageB, (1000, 1000), anti_aliasing=False)
+        print(imageB.shape, imageB.size)
+        print(imageA.shape, imageB.size)
+        #image_rescaled = rescale(image, 0.25, anti_aliasing=False)
+
+        mse = mean_squared_error(imageA, imageB)
+        ssim = structural_similarity(imageA, imageB)
+
+        print(f'MSE: {mse:.2f}, SSIM: {ssim:.2f}')
+
     
     def df_duplicator(self):
 
@@ -191,10 +222,7 @@ class organiser():
             df_hashes[img] = str(imagehash.average_hash(Image.open(picture)))
 
             #df = pd.DataFrame.from_dict(hashes, orient="index", columns = ["phash"])
-
-        
-        
-        
+       
         df = pd.DataFrame(list(df_hashes.items()),columns = ['image','hash'])
         df_hem = pd.DataFrame(list(df_hashes.items()),columns = ['image','hash'])
 
@@ -250,7 +278,8 @@ picture = organiser(args.directory)
 
 #picture.mover(args.type)
 #picture.duplicator()
-picture.df_duplicator()
+#picture.df_duplicator()
+picture.similarer()
 
 
 
