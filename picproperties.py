@@ -38,6 +38,9 @@ class Picture():
     def get_size(self):
         st = os.stat(self.fname)
         return st.st_size
+
+    def __str__(self):
+        return '{} {} {} {} {}'.format(self.fname, self.hash, self.mtime, self.ptaken, self.psize)
     
 class OrgPictures():
     def __init__(self, folder):
@@ -105,14 +108,15 @@ class OrgPictures():
     
 
 
-img = Picture(r"/mnt/c/Users/ethoren/Pictures/_temp/processed_img/20151114_143616.jpg")
-picDir = r"/mnt/c/Users/ethoren/Pictures/_temp/_DUPLICATE"
+img = Picture(r"/home/trendel/Bilder/processed_img/DSC_0051_1.jpg")
+print(img)
+#picDir = r"/mnt/c/Users/ethoren/Pictures/_temp/_DUPLICATE"
 #picDir = r"/mnt/c/Users/ethoren/Pictures/_temp/"
 
-images = OrgPictures(picDir)
-imagelist = images.create_piclist()
+#images = OrgPictures(picDir)
+#imagelist = images.create_piclist()
 #print(imagelist)
-images.get_duplicates()
+#images.get_duplicates()
 
 
 
