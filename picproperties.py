@@ -17,7 +17,6 @@ class Picture():
     def get_mtime(self):
         return datetime.fromtimestamp(os.path.getmtime(self.fname)).strftime('%Y:%m:%d %H:%M:%S')
     
-    # Helper method
     def preprocess_exif(self, data):
         data = data.strip()
         data = data.strip('\x00')
@@ -42,6 +41,12 @@ class Picture():
     def __str__(self):
         return '{} {} {} {} {}'.format(self.fname, self.hash, self.mtime, self.ptaken, self.psize)
     
+
+def is_img(fname):
+    f = fname.lower()
+    return f.endswith("jpg") or f.endswith("jpeg") or f.endswith("png") or f.endswith("gif")
+
+
 class OrgPictures():
     def __init__(self, folder):
         self.folder = folder
@@ -54,16 +59,18 @@ class OrgPictures():
         dirs = [x[0] for x in os.walk(self.folder) if "processed" not in x[0]]
 
         for subfolder in dirs:
-            # files per subfolder
 
+            #filenames = [f for f in os.listdir(subfolder) if os.path.isfile(os.path.join(subfolder, f)) and is_img(os.path.join(subfolder, f))]
             filenames = [f for f in os.listdir(subfolder) if os.path.isfile(os.path.join(subfolder, f))]
 
             for fname in filenames:
                 srcname = os.path.join(subfolder, fname)
                 self.pictures.append(Picture(srcname))
         
+        print("... scanning done!")
+        
         return self.pictures
-    
+    '''
     def get_duplicates(self):
 
         for dup in self.pictures:
@@ -88,28 +95,23 @@ class OrgPictures():
             print(", ".join(row['path']))
         
         
-
-
-        
-        
-        
         #df_hem = pd.DataFrame(list(df_hashes.items()),columns = ['image','hash'])
 
         #df['path'] = df.apply(lambda path: self.ffolderimg + path.image, axis = 1)
         #df['path'] = self.ffolderimg + '/' + df['image']
 
-        
-        
+    '''
+ 
+#img = Picture(r"/home/trendel/Bilder/processed_img/DSC_0051_1.jpg")
+#img = Picture(r"/mnt/c/Users/ethoren/Pictures/_temp/01_Bilder_A5_26102018/Camera/20180211_120211.jpg")
+folder = r"/mnt/c/Users/ethoren/Pictures/_temp/"
+picLst = OrgPictures(folder)
+print(picLst.create_piclist())
+ 
 
 
-            
 
-        
-    
-
-
-img = Picture(r"/home/trendel/Bilder/processed_img/DSC_0051_1.jpg")
-print(img)
+#print(img)
 #picDir = r"/mnt/c/Users/ethoren/Pictures/_temp/_DUPLICATE"
 #picDir = r"/mnt/c/Users/ethoren/Pictures/_temp/"
 
@@ -117,9 +119,6 @@ print(img)
 #imagelist = images.create_piclist()
 #print(imagelist)
 #images.get_duplicates()
-
-
-
 
 
 
