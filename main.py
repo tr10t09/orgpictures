@@ -1,4 +1,5 @@
 import os
+import shutil
 import pandas as pd
 from mediaorg import MediaOrg
 from picture import Picture
@@ -7,101 +8,93 @@ from fileprops import FileProps
 
 mediafolder = r'/mnt/c/Users/ethoren/Pictures/_temp/'
 photofolder = r'/mnt/c/Users/ethoren/Pictures/_temp/processed_img'
+_DUPLICATES = r'/mnt/c/Users/ethoren/Pictures/_temp/_DUPLICATES'
 
 #videos = MediaOrg(mediafolder, "vid")
 #vids = videos.getmedia()
 #viddict = videos.getsamenamings(vids)
 #videos.movemedia(viddict)
 
-#photos = MediaOrg(mediafolder, "img")
-#imgs = photos.getmedia()
-#imgdict = photos.getsamenamings(imgs)
-#photos.movemedia(imgdict)
-
-photofiles = [os.path.join(d, x) for d, sd, f in os.walk(photofolder) for x in f]
-photoprops = []
-
-#for files in photofiles[1:10]:
-for files in photofiles:
-    photoprops.append(FileProps(files))
+photos = MediaOrg(mediafolder, "img")
+imgs = photos.getmedia()
+imgdict = photos.getsamenamings(imgs)
+#print(imgdict['DSC_0001.jpg'])
+#temp = {k: v for k, v in imgdict.items() if k == 'DSC_0001.jpg'}
+#photos.movemedia(temp)
+photos.movemedia(imgdict)
 
 
-picdict = {}
-for i in photoprops:
-    #print(os.path.basename(i.fname), i.hashval, i.fsize, i.fmtime)
-    picdict[os.path.basename(i.fname)] = [i.hashval, i.fsize, i.fmtime]
-
-df = pd.DataFrame.from_dict(picdict, orient='index').reset_index()
-df.columns = ['file','hash', 'size', 'time']
-df = df[['hash', 'file', 'size', 'time']]
-#grouped = df.groupby(['hash', 'size']).size().reset_index(name='counts')
-grouped = df.groupby(['hash', 'size']).agg({'file':['count', list], 'time':list}).reset_index()
-grouped.columns = ['_'.join(col).strip() if col[1] else col[0] for col in grouped.columns.values]
-
-pd.set_option('display.max_colwidth', None)
-pd.set_option('display.max_rows', None)
-
-grp_dupl = grouped[grouped["file_count"] >= 2]
-grp_dupl.reset_index(inplace=True)
-grp_flt = grp_dupl[['file_list','time_list']]
-df = grp_flt
-
-#grp_flt['oldest'] = grp_flt['time_list'].apply(lambda x: max(x))
-#grp_flt['oldestidx'] = grp_flt['time_list'].apply(lambda x: x.index(max(x)))
+#pic = FileProps('/mnt/c/Users/ethoren/Pictures/_temp/processed_img/DSC_0001_1.jpg')
+#print(pic)
 
 
-#print(grp_flt[['time_list', 'oldest', 'oldestidx']])
-
-#print(grp_flt['time_list'])
-
-#df = pd.DataFrame({'A' : (1,2,3), 'B': ([0,1,2],[3,4,5,],[6,7,8])})
-#df['C'] = df['A'] + df['B'].apply(lambda x:x[1])
-#df['C'] = df['A'] + df.apply(lambda row: row['B'][1], axis = 1) 
-
-
-
-
-#https://stackoverflow.com/questions/23787895/python-pandas-access-the-element-of-the-list-in-dataframe
-
-#df=pd.DataFrame({'pos': {0: [0.11,0.14,0.46], 1:[1,2,3]},'n': {0: 2.0,1:1}})
-
-
-#grp_flt['oldest'] = grp_flt['time_list'].apply(lambda x: max(x))
-#grp_flt['oldestidx'] = grp_flt['time_list'].apply(lambda x: x.index(max(x)))
-
-df['timeidx'] = df.apply(lambda x: x['time_list'].index(min(x['time_list'])), axis=1)
-#df['new column']=df.apply(lambda x: x.file_list[int(x.oldestidx)], axis=1)
-df['fselect']=df.apply(lambda x: x['file_list'][int(x['timeidx'])], axis=1)
-print(df[['file_list', 'time_list', 'timeidx']])
+#pic2 = FileProps('/mnt/c/Users/ethoren/Pictures/_temp/processed_img/DSC_0001_2.jpg')
+#print(pic2)
 
 
 '''
-df_hem["distance"] = df_hem.apply(lambda x: distance.hamming(ahash, x["hash"]),axis=1)
 
-print(distance.hamming(ahash, df_hem["hash"][1]))
+def get_duplicates(filefolder):
+    mediafiles = [os.path.join(d, x) for d, sd, f in os.walk(filefolder) for x in f]
+    mediaprops = []
 
-        print(df_hem.apply(lambda x: distance.hamming(ahash, x["hash"]),axis=1))
+    # list of media file instances, each representing the properties of each file
+    for mfile in mediafiles:
+        mediaprops.append(FileProps(mfile))
+    
+    # create dictory as input for pandas
+    mediadict = {}
+    for i in mediaprops:
+        mediadict[os.path.basename(i.fname)] = [i.hashval, i.fsize, i.fmtime]
 
-        df_hem["distance"] = df_hem.apply(lambda x: distance.hamming(ahash, x["hash"]),axis=1)
+    # put data to panda
+    df = pd.DataFrame.from_dict(mediadict, orient='index').reset_index()
+    df.columns = ['file','hash', 'size', 'time']
+    df = df[['hash', 'file', 'size', 'time']]
+    
+
+    # do grouping based on hash and file size
+    #grouped = df.groupby(['hash', 'size']).size().reset_index(name='counts')
+    df = df.groupby(['hash', 'size']).agg({'file':['count', list], 'time':list}).reset_index()
+    # flatten the header, caused by agg function
+    df.columns = ['_'.join(col).strip() if col[1] else col[0] for col in df.columns.values]
+    #print(df)
+    #df.to_csv('/mnt/c/Users/ethoren/Pictures/_temp/filelist.csv', sep='\t', encoding='utf-8')
+    pd.set_option('display.max_colwidth', None)
+    pd.set_option('display.max_rows', None)
+    
+    dfd = df[df["file_count"] >= 2]
+    dfd.reset_index(inplace=True)
+    
+    dfd = dfd[['file_list','time_list']]
+    print(dfd)
+    # check for oldest file
+    dfd['timeidx'] = dfd.apply(lambda x: x['time_list'].index(min(x['time_list'])), axis=1)
+    
+    # select file (not the duplicates) based on previous selection
+    #df['new column']=df.apply(lambda x: x.file_list[int(x.oldestidx)], axis=1)
+    dfd['fselect'] = dfd.apply(lambda x: x['file_list'][int(x['timeidx'])], axis=1)
+    dfd.apply(lambda x: x['file_list'].remove(x['fselect']), axis=1)
+    #print(dfd)
+    #flat_list = [item for sublist in df['file_list'].tolist() for item in sublist]
+    df_flat_list = dfd.explode('file_list')
+    flat_list = df_flat_list['file_list'].tolist()
+    
+    dup_list = [os.path.join(filefolder, item) for item in flat_list]
 
 
+    return dup_list
 
-
-print('-------------------')
-for x, y in zip(grp_dupl['file_list'], grp_dupl['time_list']):
-    # check oldest element in y and take index from there to select x
-    is_min_level = min(y)
-    print(y.index(is_min_level))
-    print(x[y.index(is_min_level)])
-
-
-
-if is_min_level:
-    return values.index(min(values))
-else:
-    return values.index(max(values))       
-
-
-#temp = [f(x, y) for x, y in zip(grouped['file_list'], grouped['time_list'])]
-
+#print(get_duplicates(photofolder))
+#get_duplicates(photofolder)
 '''
+
+if not os.path.exists(_DUPLICATES):
+    os.makedirs(_DUPLICATES)
+
+
+#for m in get_duplicates(photofolder):
+for m in photos.getduplicates(photofolder):
+    #move to _DUPLICATES
+    #shutil.move(src, dst, copy_function=copy2)
+    shutil.move(m, _DUPLICATES)
