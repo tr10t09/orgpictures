@@ -89,6 +89,7 @@ def get_duplicates(filefolder):
 #get_duplicates(photofolder)
 '''
 
+'''
 if not os.path.exists(_DUPLICATES):
     os.makedirs(_DUPLICATES)
 
@@ -98,3 +99,4 @@ for m in photos.getduplicates(photofolder):
     #move to _DUPLICATES
     #shutil.move(src, dst, copy_function=copy2)
     shutil.move(m, _DUPLICATES)
+'''

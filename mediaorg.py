@@ -66,6 +66,7 @@ class MediaOrg():
             for it in q:
                 
                 filecount += 1
+                print(f'{filecount:5d}/{len(self.mediafiles):5d} --- FILE: [{it:20}]', end='\r', flush = True)                
                 if not os.path.isfile(targetfile):
                     shutil.copy2(it, targetfile)
                     #print(f'0: {it} copied to {targetfile}')
@@ -83,7 +84,7 @@ class MediaOrg():
                     #shutil.copy2(q[0], targetfileupdate)
                     shutil.copy2(it, targetfileupdate)
         
-        print(f'{filecount} files copied')
+        #print(f'{filecount} files copied')
     
     def getduplicates(self, filefolder):
         mediafiles = [os.path.join(d, x) for d, sd, f in os.walk(filefolder) for x in f]
