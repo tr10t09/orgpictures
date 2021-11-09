@@ -6,9 +6,9 @@ from picture import Picture
 from fileprops import FileProps
 
 
-mediafolder = r'/mnt/c/Users/ethoren/Pictures/_temp/'
-photofolder = r'/mnt/c/Users/ethoren/Pictures/_temp/processed_img'
-_DUPLICATES = r'/mnt/c/Users/ethoren/Pictures/_temp/_DUPLICATES'
+mediafolder = r'/home/trendel/Bilder/_backup_hd/'
+photofolder = r'/home/trendel/Bilder/_backup_hd/processed_img'
+_DUPLICATES = r'/home/trendel/Bilder/_backup_hd/_DUPLICATES'
 
 #videos = MediaOrg(mediafolder, "vid")
 #vids = videos.getmedia()
