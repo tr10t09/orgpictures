@@ -11,7 +11,6 @@ class FileProps():
         self.fsize = self.get_size()
         self.fmtime = self.get_mtime()
         self.hashval = self.get_hashvalue()
-        
         FileProps.n_images +=1
     
     # class method for counting the number of instances -> pictures
@@ -19,7 +18,6 @@ class FileProps():
     def counter(cls):
         return cls.n_images
 
-    
     def get_size(self):
         st = os.stat(self.fname)
         return st.st_size
@@ -31,15 +29,19 @@ class FileProps():
         with open(self.fname, 'rb') as f:
             data = f.read()
             md5hash = hashlib.md5(data).hexdigest()
-        
         return md5hash
     
     def __str__(self):
         return '{};{};{};{}'.format(self.fname, self.hashval, self.fsize, self.fmtime)
     
+
 class FilePropsImg(FileProps):
-    def __init__(self):
+
+    def __init__(self, fname):
+        super().__init__(fname)
+        
         self.exittime = self.get_exiftime()
+    
     @classmethod
     def preprocess_exif(self, data):
         data = data.strip()
@@ -51,7 +53,8 @@ class FilePropsImg(FileProps):
             exif = img._getexif() 
             
         ts = self.preprocess_exif(exif[306])
-            
+        
+        # maybe this is not required here, just return the complete timestamp as a string
         date = ts.split(' ')[0]
         time = ts.split(' ')[1]
         year = datetime.strptime(date, '%Y:%m:%d').strftime('%Y')
@@ -60,7 +63,4 @@ class FilePropsImg(FileProps):
 
     def __str__(self):
         return '{};{};{};{};{}'.format(self.fname, self.hashval, self.fsize, self.fmtime, self.exittime)
-    
-
-pic = FilePropsImg("/home/trendel/Bilder/_backup_hd/processed_img/P5121958_1.JPG")
-print(pic)
+        
