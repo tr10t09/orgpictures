@@ -9,9 +9,13 @@ from fileprops import FileProps
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--directory", required=True)
+ap.add_argument("-t", "--type", choices = ['img', 'vid'], default = "img")
+ap.add_argument("-r", "--recursive", action='store_true')
 args = ap.parse_args()
+#print(args.recursive)
+#print(args.type)
 #print(args.directory)
-mediafolder = args.directory
+#mediafolder = args.directory
 #arg = vars(ap.parse_args())
 #print(arg['name'])
 
@@ -27,7 +31,9 @@ _DUPLICATES = r'/home/trendel/Bilder/_backup_hd/_DUPLICATES'
 #viddict = videos.getsamenamings(vids)
 #videos.movemedia(viddict)
 
-photos = MediaOrg(mediafolder, "img")
+#MediaOrg(folder, recursive, type)
+#photos = MediaOrg(mediafolder, "img")
+photos = MediaOrg(args.directory, args.recursive, args.type)
 imgs = photos.getmedia()
 print(imgs)
 #imgdict = photos.getsamenamings(imgs)

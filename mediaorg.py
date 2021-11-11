@@ -1,17 +1,21 @@
 import os
 import shutil
 import pandas as pd
-from fileprops import FileProps
+from fileprops import FileProps, FilePropsImg
+
+#MediaOrg(folder, recursive, type)
 
 class MediaOrg():
-    def __init__(self, basefolder, mediatype):
+    def __init__(self, basefolder, recursive, mediatype):
         self.basefolder = basefolder
+        self.recursive = recursive
         self.type = mediatype
         self.mediafiles = []
         self.imgfiles = []
         self.vidfiles = []
         self.equals ={}
     
+
     @staticmethod
     def is_img(fname):
         f = fname.lower()
@@ -24,11 +28,39 @@ class MediaOrg():
 
     
     def getmedia(self):
+        if not self.recursive:
+            for folderitems in os.listdir(self.basefolder):
+                fullitem = os.path.join(self.basefolder, folderitems)
+                if os.path.isfile(fullitem):
+                    f = fullitem.lower()                
+                    if self.type == 'img' and (f.endswith("jpg") or f.endswith("jpeg") or f.endswith("png") or f.endswith("gif")):
+                        #print(f'{fullitem} is an image')
+                        self.mediafiles.append(fullitem)
+                    elif self.type == 'vid' and (f.endswith("mp4") or f.endswith("3gp")):
+                        #print(f'{fullitem} is an video')
+                        self.mediafiles.append(fullitem)
+                    else:
+                        continue
+        else:
+            if self.type == "vid":
+                self.mediafiles = [os.path.join(d, x) for d, sd, f in os.walk(self.basefolder) if "processed" not in d for x in f if MediaOrg.is_vid(x)]
+            else:
+                self.mediafiles = [os.path.join(d, x) for d, sd, f in os.walk(self.basefolder) if "processed" not in d for x in f if MediaOrg.is_img(x)]
+        
+        return self.mediafiles
+
+        
+
+        #self.basefolder = basefolder
+        #self.recursive = recursive
+        #self.type = mediatype
+        '''
         if self.type == "vid":
             self.mediafiles = [os.path.join(d, x) for d, sd, f in os.walk(self.basefolder) if "processed" not in d for x in f if MediaOrg.is_vid(x)]
         else:
             self.mediafiles = [os.path.join(d, x) for d, sd, f in os.walk(self.basefolder) if "processed" not in d for x in f if MediaOrg.is_img(x)]
         return self.mediafiles
+        '''
 
     def getimgmedia(self):
         self.imgfiles = [os.path.join(d, x) for d, sd, f in os.walk(self.basefolder) if "processed" not in d for x in f if is_img(x)]
