@@ -33,12 +33,14 @@ _DUPLICATES = r'/home/trendel/Bilder/_backup_hd/_DUPLICATES'
 
 #MediaOrg(folder, recursive, type)
 #photos = MediaOrg(mediafolder, "img")
-photos = MediaOrg(args.directory, args.recursive, args.type)
-imgs = photos.getmedia()
-imgdict = photos.getsamenamings(imgs)
+media = MediaOrg(args.directory, args.recursive, args.type)
+medialist = media.get_mediafilelist()
+mediadict = media.get_samefilenames(medialist)
+
+media.get_dfmediafilelist(medialist)
 
 #print(imgs)
-photos.getdffromdict(imgs)
+#photos.getdffromdict(imgs)
 
 #print(imgdict['DSC_0001.jpg'])
 #temp = {k: v for k, v in imgdict.items() if k == 'DSC_0001.jpg'}

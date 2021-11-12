@@ -3,7 +3,6 @@ import shutil
 import pandas as pd
 from fileprops import FileProps, FilePropsImg
 
-#MediaOrg(folder, recursive, type)
 
 class MediaOrg():
     def __init__(self, basefolder, recursive, mediatype):
@@ -11,8 +10,6 @@ class MediaOrg():
         self.recursive = recursive
         self.type = mediatype
         self.mediafiles = []
-        self.imgfiles = []
-        self.vidfiles = []
         self.equals ={}
     
 
@@ -27,7 +24,7 @@ class MediaOrg():
         return f.endswith("mp4") or f.endswith("3gp")
 
     
-    def getmedia(self):
+    def get_mediafilelist(self):
         if not self.recursive:
             for folderitems in os.listdir(self.basefolder):
                 fullitem = os.path.join(self.basefolder, folderitems)
@@ -52,29 +49,8 @@ class MediaOrg():
                 self.mediafiles = [os.path.join(d, x) for d, sd, f in os.walk(self.basefolder) if "processed" not in d for x in f if MediaOrg.is_img(x)]
         
         return self.mediafiles
-
-        
-
-        #self.basefolder = basefolder
-        #self.recursive = recursive
-        #self.type = mediatype
-        '''
-        if self.type == "vid":
-            self.mediafiles = [os.path.join(d, x) for d, sd, f in os.walk(self.basefolder) if "processed" not in d for x in f if MediaOrg.is_vid(x)]
-        else:
-            self.mediafiles = [os.path.join(d, x) for d, sd, f in os.walk(self.basefolder) if "processed" not in d for x in f if MediaOrg.is_img(x)]
-        return self.mediafiles
-        '''
-
-    def getimgmedia(self):
-        self.imgfiles = [os.path.join(d, x) for d, sd, f in os.walk(self.basefolder) if "processed" not in d for x in f if is_img(x)]
-        return self.imgfiles
     
-    def getvidmedia(self):
-        self.vidfiles = [os.path.join(d, x) for d, sd, f in os.walk(self.basefolder) if "processed" not in d for x in f if is_vid(x)]
-        return self.vidfiles
-    
-    def getsamenamings(self, filelist):
+    def get_samefilenames(self, filelist):
      
         for b in filelist:
             p = self.equals.get(os.path.basename(b), [])
@@ -82,7 +58,7 @@ class MediaOrg():
             self.equals[os.path.basename(b)] = p
         return self.equals
     
-    def getdffromdict(self, filelist):
+    def get_dfmediafilelist(self, filelist):
         
         imgpathdict = {}
 
@@ -93,10 +69,9 @@ class MediaOrg():
         pd.set_option('display.max_colwidth', None)
         pd.set_option('display.max_rows', None)
 
-        
-
         print(df)
-
+        print(f'Number of mediafile {len(df.index)}')
+        
     def movemedia(self, medialist):
         
         if self.type == "vid":
