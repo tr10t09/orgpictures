@@ -31,16 +31,20 @@ class MediaOrg():
         if not self.recursive:
             for folderitems in os.listdir(self.basefolder):
                 fullitem = os.path.join(self.basefolder, folderitems)
-                if os.path.isfile(fullitem):
-                    f = fullitem.lower()                
-                    if self.type == 'img' and (f.endswith("jpg") or f.endswith("jpeg") or f.endswith("png") or f.endswith("gif")):
-                        #print(f'{fullitem} is an image')
-                        self.mediafiles.append(fullitem)
-                    elif self.type == 'vid' and (f.endswith("mp4") or f.endswith("3gp")):
-                        #print(f'{fullitem} is an video')
-                        self.mediafiles.append(fullitem)
+                if "processed" not in fullitem:
+                    if os.path.isfile(fullitem):
+                        f = fullitem.lower()                
+                        if self.type == 'img' and (f.endswith("jpg") or f.endswith("jpeg") or f.endswith("png") or f.endswith("gif")):
+                            #print(f'{fullitem} is an image')
+                            self.mediafiles.append(fullitem)
+                        elif self.type == 'vid' and (f.endswith("mp4") or f.endswith("3gp")):
+                            #print(f'{fullitem} is an video')
+                            self.mediafiles.append(fullitem)
+                        else:
+                            continue
                     else:
                         continue
+
         else:
             if self.type == "vid":
                 self.mediafiles = [os.path.join(d, x) for d, sd, f in os.walk(self.basefolder) if "processed" not in d for x in f if MediaOrg.is_vid(x)]
@@ -77,7 +81,22 @@ class MediaOrg():
             p.append(b)
             self.equals[os.path.basename(b)] = p
         return self.equals
-          
+    
+    def getdffromdict(self, filelist):
+        
+        imgpathdict = {}
+
+        for b in filelist:
+            imgpathdict[b] = os.path.basename(b)
+
+        df = pd.DataFrame(imgpathdict.items(), columns=['fullpath', 'fname'])        
+        pd.set_option('display.max_colwidth', None)
+        pd.set_option('display.max_rows', None)
+
+        
+
+        print(df)
+
     def movemedia(self, medialist):
         
         if self.type == "vid":
