@@ -11,6 +11,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--directory", required=True)
 ap.add_argument("-t", "--type", choices = ['img', 'vid'], default = "img")
 ap.add_argument("-r", "--recursive", action='store_true')
+ap.add_argument("-m", "--move")
 args = ap.parse_args()
 #print(args.recursive)
 #print(args.type)
@@ -24,20 +25,14 @@ args = ap.parse_args()
 photofolder = r'/home/trendel/Bilder/_backup_hd/processed_img'
 _DUPLICATES = r'/home/trendel/Bilder/_backup_hd/_DUPLICATES'
 
-#print(mediafolder)
-
-#videos = MediaOrg(mediafolder, "vid")
-#vids = videos.getmedia()
-#viddict = videos.getsamenamings(vids)
-#videos.movemedia(viddict)
-
-#MediaOrg(folder, recursive, type)
-#photos = MediaOrg(mediafolder, "img")
 media = MediaOrg(args.directory, args.recursive, args.type)
 medialist = media.get_mediafilelist()
 mediadict = media.get_samefilenames(medialist)
 
-media.get_dfmediafilelist(medialist)
+print(mediadict)
+
+#media.get_dfmediafilelist(medialist)
+
 
 #print(imgs)
 #photos.getdffromdict(imgs)
@@ -48,11 +43,6 @@ media.get_dfmediafilelist(medialist)
 #photos.movemedia(imgdict)
 
 
-#pic = FileProps('/mnt/c/Users/ethoren/Pictures/_temp/processed_img/DSC_0001_1.jpg')
-#print(pic)
-
-#pic2 = FileProps('/mnt/c/Users/ethoren/Pictures/_temp/processed_img/DSC_0001_2.jpg')
-#print(pic2)
 
 
 '''
