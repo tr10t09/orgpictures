@@ -5,10 +5,11 @@ from fileprops import FileProps, FilePropsImg
 
 
 class MediaOrg():
-    def __init__(self, basefolder, recursive, mediatype):
+    def __init__(self, basefolder, recursive, mediatype, move):
         self.basefolder = basefolder
         self.recursive = recursive
         self.type = mediatype
+        self.movefolder = move
         self.mediafiles = []
         self.equals ={}
     
@@ -72,22 +73,25 @@ class MediaOrg():
         print(df)
         print(f'Number of mediafile {len(df.index)}')
         
-    def movemedia(self, medialist):
+    def mv_media(self, mediadict):
         
         if self.type == "vid":
-            targetdir = self.basefolder + "processed_vid"
+            targetdir = self.movefolder + "processed_vid"
+        elif self.type == "img":
+            targetdir = self.movefolder + "processed_img"
         else:
-            targetdir = self.basefolder + "processed_img"
+            print("Nothing to move")
             
-            
+        # create move to folder if does not exists
         if not os.path.exists(targetdir):
             os.makedirs(targetdir)
 
         filecount = 0
 
-        for f, q in medialist.items():
+        for f, q in mediadict.items():
             #print(f, q)
-            targetfile = targetdir + "/" + f
+            # target filename /tmp/<file>
+            targetfile = targetdir + f
             
             for it in q:
                 

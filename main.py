@@ -11,13 +11,15 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--directory", required=True)
 ap.add_argument("-t", "--type", choices = ['img', 'vid'], default = "img")
 ap.add_argument("-r", "--recursive", action='store_true')
-ap.add_argument("-m", "--move")
+ap.add_argument("-m", "--move", action='store_true')
 args = ap.parse_args()
 #print(args.recursive)
 #print(args.type)
 #print(args.directory)
+#print(args.move)
 #mediafolder = args.directory
-#arg = vars(ap.parse_args())
+arg = vars(ap.parse_args())
+print(arg)
 #print(arg['name'])
 
 
@@ -25,11 +27,14 @@ args = ap.parse_args()
 photofolder = r'/home/trendel/Bilder/_backup_hd/processed_img'
 _DUPLICATES = r'/home/trendel/Bilder/_backup_hd/_DUPLICATES'
 
-media = MediaOrg(args.directory, args.recursive, args.type)
+media = MediaOrg(args.directory, args.recursive, args.type, args.move)
 medialist = media.get_mediafilelist()
 mediadict = media.get_samefilenames(medialist)
 
-print(mediadict)
+#if args.move != "":
+#    print("MOve FIles")
+
+#print(mediadict)
 
 #media.get_dfmediafilelist(medialist)
 
