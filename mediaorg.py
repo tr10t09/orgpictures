@@ -1,15 +1,15 @@
 import os
 import shutil
 import pandas as pd
+from datetime import datetime, timedelta
 from fileprops import FileProps, FilePropsImg
 
 
 class MediaOrg():
-    def __init__(self, basefolder, recursive, mediatype, move):
+    def __init__(self, basefolder, recursive, mediatype):
         self.basefolder = basefolder
         self.recursive = recursive
         self.type = mediatype
-        self.movefolder = move
         self.mediafiles = []
         self.equals ={}
     
@@ -72,6 +72,57 @@ class MediaOrg():
 
         print(df)
         print(f'Number of mediafile {len(df.index)}')
+    
+    def get_mediaduplicatelist(self, filelist):
+        mediaprops = []
+
+        for mfile in filelist:
+            mediaprops.append(FileProps(mfile))
+            
+        mediadict = {}
+        for i in mediaprops:
+            mediadict[i.fname] = [i.hashval, i.fsize, i.fmtime]
+        
+        df = pd.DataFrame.from_dict(mediadict, orient='index').reset_index()
+        df.columns = ['file','hash', 'size', 'time']
+        df = df[['hash', 'file', 'size', 'time']]
+        df = df.groupby(['hash', 'size']).agg({'file':['count', list], 'time':list}).reset_index()
+        df.columns = ['_'.join(col).strip() if col[1] else col[0] for col in df.columns.values]
+        
+        dfd = df[df["file_count"] >= 2]
+        dfd.reset_index(inplace=True)
+        dfd = dfd[['file_list']]        
+        
+        for index, row in dfd.iterrows():
+            print("; ".join(row['file_list']))
+
+        
+        def get_timedeviation(self):
+
+                        #SHOW PROGRESS BAR
+            #CHECK OLDEST TIMESTAMP IN TIME AND EXIFTIME + ADD COL WITH DELTA
+            
+
+
+            dfd['mtime_old'] = dfd.apply(lambda x: min(x['time_list']), axis=1)
+            dfd['exiftime_old'] = dfd.apply(lambda x: min(x['exiftime_list']), axis=1)
+            
+            dfd['mtime_old'] =  pd.to_datetime(dfd['mtime_old'], format='%Y:%m:%d %H:%M:%S')
+            dfd['exiftime_old'] =  pd.to_datetime(dfd['exiftime_old'], format='%Y:%m:%d %H:%M:%S')
+
+            #dfd['mtime_old'] = datetime.strptime(dfd['mtime_old'], '%Y:%m:%d %H:%M:%S')
+            #dfd['exiftime_old'] = datetime.strptime(dfd['exiftime_old'], '%Y:%m:%d %H:%M:%S')
+
+            #dfd['delta'] = dfd['exiftime_old'] - dfd['mtime_old']
+            #pd.Timedelta(t2 - t1).seconds / 60.0
+            #dfd['delta'] = dfd.Timedelta('exiftime_old' - 'mtime_old') / 60.0
+
+            dfd['delta1'] = (dfd.exiftime_old - dfd.mtime_old) / pd.Timedelta(hours=1)
+            dfd['delta2'] = (dfd.mtime_old - dfd.exiftime_old) / pd.Timedelta(hours=1)
+            dfd.to_csv('/home/ethoren/filelist.csv', sep=';', encoding='utf-8', index = False, float_format='%.2f')
+            #print(dfd)
+            print(dfd.dtypes)
+
         
     def mv_media(self, mediadict):
         
