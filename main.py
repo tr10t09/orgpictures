@@ -12,7 +12,7 @@ ap.add_argument("-d", "--directory", required=True)
 ap.add_argument("-t", "--type", choices = ['img', 'vid'], default = "img")
 ap.add_argument("-r", "--recursive", action='store_true')
 ap.add_argument("-l", "--list", action='store_true')
-ap.add_argument("-m", "--move", action='store_true')
+ap.add_argument("-m", "--move")
 args = ap.parse_args()
 #print(args.recursive)
 #print(args.type)
@@ -32,14 +32,15 @@ media = MediaOrg(args.directory, args.recursive, args.type)
 medialist = media.get_mediafilelist()
 mediadict = media.get_samefilenames(medialist)
 
-if (args.list):
+if args.list:
     #BEFORE MOVE PROVIDE DF OF DUPLICATES
     media.get_mediaduplicatelist(medialist)
 
-if (args.move):
-    print("move all files")
-    media.mv_media(medialist)
+if args.move is not None:
+    media.mv_media(args.move, mediadict)
     
+
+     
 
 
 

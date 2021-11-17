@@ -75,61 +75,66 @@ class MediaOrg():
     
     def get_mediaduplicatelist(self, filelist):
         mediaprops = []
+        
+        if len(filelist) == 0:
+            print("No media list in list")
+        else:
 
-        for mfile in filelist:
-            mediaprops.append(FileProps(mfile))
-            
-        mediadict = {}
-        for i in mediaprops:
-            mediadict[i.fname] = [i.hashval, i.fsize, i.fmtime]
-        
-        df = pd.DataFrame.from_dict(mediadict, orient='index').reset_index()
-        df.columns = ['file','hash', 'size', 'time']
-        df = df[['hash', 'file', 'size', 'time']]
-        df = df.groupby(['hash', 'size']).agg({'file':['count', list], 'time':list}).reset_index()
-        df.columns = ['_'.join(col).strip() if col[1] else col[0] for col in df.columns.values]
-        
-        dfd = df[df["file_count"] >= 2]
-        dfd.reset_index(inplace=True)
-        dfd = dfd[['file_list']]        
-        
-        for index, row in dfd.iterrows():
-            print("; ".join(row['file_list']))
-
-        
-        def get_timedeviation(self):
-
-                        #SHOW PROGRESS BAR
-            #CHECK OLDEST TIMESTAMP IN TIME AND EXIFTIME + ADD COL WITH DELTA
+            for mfile in filelist:
+                mediaprops.append(FileProps(mfile))
+                
+            mediadict = {}
+            for i in mediaprops:
+                mediadict[i.fname] = [i.hashval, i.fsize, i.fmtime]
             
 
-
-            dfd['mtime_old'] = dfd.apply(lambda x: min(x['time_list']), axis=1)
-            dfd['exiftime_old'] = dfd.apply(lambda x: min(x['exiftime_list']), axis=1)
+            df = pd.DataFrame.from_dict(mediadict, orient='index').reset_index()
+            df.columns = ['file','hash', 'size', 'time']
+            df = df[['hash', 'file', 'size', 'time']]
+            df = df.groupby(['hash', 'size']).agg({'file':['count', list], 'time':list}).reset_index()
+            df.columns = ['_'.join(col).strip() if col[1] else col[0] for col in df.columns.values]
+        
+            dfd = df[df["file_count"] >= 2]
+            dfd.reset_index(inplace=True)
+            dfd = dfd[['file_list']]        
             
-            dfd['mtime_old'] =  pd.to_datetime(dfd['mtime_old'], format='%Y:%m:%d %H:%M:%S')
-            dfd['exiftime_old'] =  pd.to_datetime(dfd['exiftime_old'], format='%Y:%m:%d %H:%M:%S')
-
-            #dfd['mtime_old'] = datetime.strptime(dfd['mtime_old'], '%Y:%m:%d %H:%M:%S')
-            #dfd['exiftime_old'] = datetime.strptime(dfd['exiftime_old'], '%Y:%m:%d %H:%M:%S')
-
-            #dfd['delta'] = dfd['exiftime_old'] - dfd['mtime_old']
-            #pd.Timedelta(t2 - t1).seconds / 60.0
-            #dfd['delta'] = dfd.Timedelta('exiftime_old' - 'mtime_old') / 60.0
-
-            dfd['delta1'] = (dfd.exiftime_old - dfd.mtime_old) / pd.Timedelta(hours=1)
-            dfd['delta2'] = (dfd.mtime_old - dfd.exiftime_old) / pd.Timedelta(hours=1)
-            dfd.to_csv('/home/ethoren/filelist.csv', sep=';', encoding='utf-8', index = False, float_format='%.2f')
-            #print(dfd)
-            print(dfd.dtypes)
+            for index, row in dfd.iterrows():
+                print("; ".join(row['file_list']))
 
         
-    def mv_media(self, mediadict):
+    def get_timedeviation(self):
+        # NOT READY YET !!!!!!!!!!!!!!
+        #SHOW PROGRESS BAR
+        #CHECK OLDEST TIMESTAMP IN TIME AND EXIFTIME + ADD COL WITH DELTA
+        
+
+
+        dfd['mtime_old'] = dfd.apply(lambda x: min(x['time_list']), axis=1)
+        dfd['exiftime_old'] = dfd.apply(lambda x: min(x['exiftime_list']), axis=1)
+        
+        dfd['mtime_old'] =  pd.to_datetime(dfd['mtime_old'], format='%Y:%m:%d %H:%M:%S')
+        dfd['exiftime_old'] =  pd.to_datetime(dfd['exiftime_old'], format='%Y:%m:%d %H:%M:%S')
+
+        #dfd['mtime_old'] = datetime.strptime(dfd['mtime_old'], '%Y:%m:%d %H:%M:%S')
+        #dfd['exiftime_old'] = datetime.strptime(dfd['exiftime_old'], '%Y:%m:%d %H:%M:%S')
+
+        #dfd['delta'] = dfd['exiftime_old'] - dfd['mtime_old']
+        #pd.Timedelta(t2 - t1).seconds / 60.0
+        #dfd['delta'] = dfd.Timedelta('exiftime_old' - 'mtime_old') / 60.0
+
+        dfd['delta1'] = (dfd.exiftime_old - dfd.mtime_old) / pd.Timedelta(hours=1)
+        dfd['delta2'] = (dfd.mtime_old - dfd.exiftime_old) / pd.Timedelta(hours=1)
+        dfd.to_csv('/home/ethoren/filelist.csv', sep=';', encoding='utf-8', index = False, float_format='%.2f')
+        #print(dfd)
+        print(dfd.dtypes)
+
+        
+    def mv_media(self, tfolder, mediadict):
         
         if self.type == "vid":
-            targetdir = self.movefolder + "processed_vid"
+            targetdir = tfolder + "processed_vid/"
         elif self.type == "img":
-            targetdir = self.movefolder + "processed_img"
+            targetdir = tfolder + "processed_img/"
         else:
             print("Nothing to move")
             
@@ -137,17 +142,19 @@ class MediaOrg():
         if not os.path.exists(targetdir):
             os.makedirs(targetdir)
 
+        
+        
         filecount = 0
 
         for f, q in mediadict.items():
             #print(f, q)
             # target filename /tmp/<file>
             targetfile = targetdir + f
-            
+        
             for it in q:
                 
                 filecount += 1
-                print(f'{filecount:5d}/{len(self.mediafiles):5d} --- FILE: [{it:20}]', end='\r', flush = True)                
+                print(f'{filecount:5d}/{len(self.mediafiles):5d} --- FILE: [{it:100}]', end='\r', flush = True)                
                 if not os.path.isfile(targetfile):
                     shutil.copy2(it, targetfile)
                     #print(f'0: {it} copied to {targetfile}')
@@ -165,7 +172,8 @@ class MediaOrg():
                     #shutil.copy2(q[0], targetfileupdate)
                     shutil.copy2(it, targetfileupdate)
         
-        #print(f'{filecount} files copied')
+        print(f'{filecount} files copied')
+  
     
     def getduplicates(self, filefolder):
         mediafiles = [os.path.join(d, x) for d, sd, f in os.walk(filefolder) for x in f]
