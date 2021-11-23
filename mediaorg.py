@@ -142,8 +142,6 @@ class MediaOrg():
         if not os.path.exists(targetdir):
             os.makedirs(targetdir)
 
-        
-        
         filecount = 0
 
         for f, q in mediadict.items():
@@ -172,7 +170,7 @@ class MediaOrg():
                     #shutil.copy2(q[0], targetfileupdate)
                     shutil.copy2(it, targetfileupdate)
         
-        print(f'{filecount} files copied')
+        #print(f'{filecount} files copied')
   
     
     def getduplicates(self, filefolder):
