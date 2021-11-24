@@ -34,7 +34,8 @@ mediadict = media.get_samefilenames(medialist)
 
 if args.list:
     #BEFORE MOVE PROVIDE DF OF DUPLICATES
-    media.get_mediaduplicatelist(medialist)
+    #media.get_mediaduplicatelist(medialist)
+    media.get_dfmediafilelist(medialist)
 
 if args.move is not None:
     media.mv_media(args.move, mediadict)
