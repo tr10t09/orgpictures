@@ -6,7 +6,6 @@ from mediaorg import MediaOrg
 from picture import Picture
 from fileprops import FileProps
 
-
 ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--directory", required=True)
 ap.add_argument("-t", "--type", choices = ['img', 'vid'], default = "img")
