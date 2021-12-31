@@ -56,8 +56,6 @@ if args.move is not None:
 #photos.movemedia(imgdict)
 
 
-
-
 '''
 if not os.path.exists(_DUPLICATES):
     os.makedirs(_DUPLICATES)
