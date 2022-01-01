@@ -30,7 +30,6 @@ _DUPLICATES = r'/home/trendel/Bilder/_backup_hd/_DUPLICATES'
 media = MediaOrg(args.directory, args.recursive, args.type)
 medialist = media.get_mediafilelist()
 mediadict = media.get_samefilenames(medialist)
-print(args.list)
 
 if args.list:
     #BEFORE MOVE PROVIDE DF OF DUPLICATES
