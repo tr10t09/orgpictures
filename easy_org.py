@@ -17,6 +17,11 @@ args = ap.parse_args()
 equals = {}
 fnum = 0
 
+def progbar(curr, total, full_progbar):
+    frac = curr/total
+    filled_progbar = round(frac*(full_progbar))
+    print('\r[{:>7.2%}]'.format(frac), '#'*filled_progbar + '-'*(full_progbar-filled_progbar), end='')
+
 def is_img(fname):
     f = fname.lower()
     return f.endswith("jpg") or f.endswith("jpeg") or f.endswith("png") or f.endswith("gif")
@@ -65,8 +70,8 @@ def mover(movelist, targetdir):
         
         for it in q:
             fcnt += 1
-            #print(f'{fcnt:5d}/{fnum:5d} --- FILE: [{it:100}]', end='\r', flush = True)
-            print(f'{fcnt:5d}/{fnum:5d} --- FILE: [{it:100}]', flush=True)
+            progbar(fcnt, fnum, 50)
+
             if not os.path.isfile(targetfile):
                 shutil.copy2(it, targetfile)
             else:
@@ -78,6 +83,7 @@ def mover(movelist, targetdir):
                     i += 1
                     targetfileupdate = base + "_" + str(i) + extension
                 shutil.copy2(it, targetfileupdate)
+    print(f' {fnum} files moved')
 
 def get_duplicates(mainfolder):
     # only for images
@@ -119,6 +125,8 @@ def dup_mover(duplicates, mainfolder):
 
     for i in duplicates:
         tname = targetdir + os.path.basename(i)
+        fcnt += 1
+        progbar(fcnt, len(duplicates), 50)
 
         if not os.path.isfile(tname):
             shutil.move(i, tname)
@@ -133,7 +141,7 @@ def dup_mover(duplicates, mainfolder):
                 tnameupdate = base + "_" + str(d) + extension
             
             shutil.move(i, tnameupdate)
-
+    print(f' {len(duplicates)} duplicates are moved')
 
 filelist = get_filelist(args.directory, args.type, args.recursive)
 
